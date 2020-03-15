@@ -1,9 +1,6 @@
 var VSHADER_SOURCE=
     'attribute vec4 a_Position;\n'+
     'attribute vec4 a_Color;\n'+
-    // 'uniform mat4 u_ViewMatrix;\n'+
-    // 'uniform mat4 u_ProjMatrix;\n'+
-    // 'uniform mat4 u_ModelMatrix;\n'+
     'uniform mat4 u_mvpMatrix;\n'+
     'varying vec4 v_Color;\n'+
     'void main() {\n' +
@@ -49,49 +46,41 @@ function main() {
         console.log('Failed to get uniform position of u_mvpMatrix.');
         return;
     }
-    // var u_ViewMatrix=gl.getUniformLocation(gl.program,'u_ViewMatrix');
-    // if(!u_ViewMatrix){
-    //     console.log('Failed to get uniform position of u_ViewMatrix.');
-    //     return;
-    // }
-    // var u_ProjMatrix=gl.getUniformLocation(gl.program,'u_ProjMatrix');
-    // if(!u_ProjMatrix){
-    //     console.log('Failed to get uniform position of u_ProjMatrix.');
-    //     return;
-    // }
+
     var modelMatrix=new Matrix4();
     var viewMatrix=new Matrix4();
-    viewMatrix.setLookAt(0.0,0.0,10.0,0,0,-100,0,1,0);
     var projMatrix=new Matrix4();
-    projMatrix.setPerspective(30,canvas.width/canvas.height,1.0,100.0);
     var mvpMatrix=new Matrix4();
-    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-    gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
+ //    viewMatrix.setLookAt(0.0,0.0,10.0,0,0,-100,0,1,0);
+    projMatrix.setPerspective(30,canvas.width/canvas.height,1.0,100.0);
+    //projMatrix.setOrtho(-1.0,1.0,-1.0,1.0,-10.0,1000);
+ //    var mvpMatrix=new Matrix4();
+ //    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+ //    gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
+ //
+ //    gl.drawArrays(gl.TRIANGLES,0,n/2);
+ // //   gl.polygonOffset(1.0,1.0);
+ //    gl.drawArrays(gl.TRIANGLES,n/2,n/2);
 
-    gl.drawArrays(gl.TRIANGLES,0,n/2);
-    //gl.polygonOffset(1.0,1.0);
-    gl.drawArrays(gl.TRIANGLES,n/2,n/2);
-    // document.onkeydown=function (ev) {
-    //     keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix);
-    // }
 
-    //projMatrix.setOrtho(-1.0,1.0,-1.0,1.0,0.0,2.0);
-    //gl.uniformMatrix4fv(u_ProjMatrix,false,projMatrix.elements);
-    //draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix);
+    document.onkeydown=function (ev) {
+        keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix,mvpMatrix);
+    }
+    draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix,mvpMatrix);
+
 
 }
 
 function initVertexBuffers(gl) {
     var verticesColors=new Float32Array([
         //2个三角形
-        0,2.5,-5,0,1,0,//绿色三角形
-        -2.5,-2.5,-5,0,1,0,
-        2.5,-2.5,-5,1,0,0,
+         0.0, 2.5,-5.0,0.0,1.0,0.0,//绿色三角形
+        -2.5,-2.5,-5.0,1.0,0.0,0.0,
+         2.5,-2.5,-5.0,1.0,0.0,0.0,
 
-        0,3,-5,1,0,0,//黄色三角形
-        -3,-3,-5,1,1,0,
-        3,-3,-5,1,1,0,
-
+         0.0, 3.0,-5.0,1.0,0.0,0.0,//黄色三角形
+        -3.0,-3.0,-5.0,1.0,1.0,0.0,
+         3.0,-3.0,-5.0,1.0,1.0,0.0,
     ]);
     var fsize=verticesColors.BYTES_PER_ELEMENT;
     var n=6;
@@ -128,10 +117,9 @@ function initVertexBuffers(gl) {
 
     return n;
 }
-
 var g_eyeX=0.0,g_eyeY=0.0,g_eyeZ=5.0;
 //g_eyeX=-0.75;//为了测试深度冲突现象，但是并没有出现
-function keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix) {
+function keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix,mvpMatrix) {
     if(ev.keyCode==39){
         g_eyeX+=0.01;
     }
@@ -141,14 +129,14 @@ function keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix) {
     else{
         return;
     }
-    draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix);
+    draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix,mvpMatrix);
 }
 
-function draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix) {
-    //modelMatrix.setTranslate(-0.75,0,0);
+function draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix,mvpMatrix) {
+   // modelMatrix.setTranslate(-0.75,0,0);
     //gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix.elements);
     viewMatrix.setLookAt(g_eyeX,g_eyeY,g_eyeZ,0,0,-100,0,1,0);
-    var mvpMatrix=new Matrix4();
+   // var mvpMatrix=new Matrix4();
     mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
     //mvpMatrix.set(modelMatrix).multiply(viewMatrix).multiply(projMatrix);
     gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
@@ -156,14 +144,11 @@ function draw(gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix) {
     gl.clear(gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.drawArrays(gl.TRIANGLES,0,n/2);
-    gl.polygonOffset(1.0,0.5);
+    gl.polygonOffset(10.0,0.0);
+   // modelMatrix.setTranslate(0.75,0,0);
+  //  mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+    //mvpMatrix.set(modelMatrix).multiply(viewMatrix).multiply(projMatrix);
+   // gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
     gl.drawArrays(gl.TRIANGLES,n/2,n/2);
-    // modelMatrix.setTranslate(0.75,0,0);
-    // mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-    // //mvpMatrix.set(modelMatrix).multiply(viewMatrix).multiply(projMatrix);
-    // gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
-    // gl.drawArrays(gl.TRIANGLES,0,n);
 }
-
-
 
