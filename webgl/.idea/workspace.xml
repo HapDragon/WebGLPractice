@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="5ed6a195-64c4-44ca-8a69-11ff5ed29189" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1YVTDqizapFqChdoxUWg43WoxxT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1583887483491" />
+    <property name="last_opened_file_path" value="E:/workspace/achive_map-manage" />
+    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\wqy\Desktop\webgl\images" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5ed6a195-64c4-44ca-8a69-11ff5ed29189" name="Default Changelist" comment="" />
+      <created>1583026646418</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1583026646418</updated>
+      <workItem from="1583026652208" duration="7647000" />
+      <workItem from="1583063590147" duration="3638000" />
+      <workItem from="1583130595818" duration="6768000" />
+      <workItem from="1583195092439" duration="3390000" />
+      <workItem from="1583237993982" duration="1752000" />
+      <workItem from="1583280797283" duration="3419000" />
+      <workItem from="1583368448432" duration="2468000" />
+      <workItem from="1583400961278" duration="2593000" />
+      <workItem from="1583650597533" duration="5658000" />
+      <workItem from="1583658687178" duration="148000" />
+      <workItem from="1583712318598" duration="2069000" />
+      <workItem from="1583798528689" duration="4179000" />
+      <workItem from="1583885168987" duration="2352000" />
+      <workItem from="1584000484972" duration="89000" />
+      <workItem from="1584014383699" duration="1657000" />
+      <workItem from="1584147657639" duration="17494000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="375" y="192" key="com.intellij.ide.util.TipDialog" timestamp="1584147691080">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="375" y="192" key="com.intellij.ide.util.TipDialog/0.0.1366.728@0.0.1366.728" timestamp="1584147691080" />
+    <state x="303" y="90" width="759" height="548" key="find.popup" timestamp="1584190271406">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="303" y="90" width="759" height="548" key="find.popup/0.0.1366.728@0.0.1366.728" timestamp="1584190271406" />
+    <state x="365" y="49" width="672" height="678" key="search.everywhere.popup" timestamp="1583034653943">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="365" y="49" width="672" height="678" key="search.everywhere.popup/0.0.1366.728@0.0.1366.728" timestamp="1583034653943" />
+  </component>
+</project>

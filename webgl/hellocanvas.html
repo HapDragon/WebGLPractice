@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HELLO canvas</title>
+</head>
+<body onload="main()" >
+<canvas id="webgl" width="400" height="400" ></canvas>
+<!--<button onclick="speedup()">Up</button>-->
+<!--<button onclick="speeddown()">down</button>-->
+<!--<p id="nearFar">The near and far values are displayed here.</p>&lt;!&ndash;使用OrthoView.js时用到&ndash;&gt;-->
+<ul>
+    <li>若片元着色器传入了参数，则片元着色器开头必须要声明float精确度，例如：precision mediump float;该语句放到顶点着色器没用。</li>
+    <li>实验证明 vec4类型的顶点坐标变换参数即可以用uniform定义，也可以用attribute定义，见TranslatedTriangle.js和RotatedTriangle.js，但是建议用uniform，因为这些值与顶点无关，其值不受顶点坐标影响。</li>
+</ul>
+</body>
+<script src="./lib/webgl-utils.js"></script>
+<script src="./lib/webgl-debug.js"></script>
+<script src="./lib/cuon-utils.js"></script>
+<script src="./lib/cuon-matrix.js"></script>
+<!--<script src="hellocanvas.js"></script>-->
+<!--<script src="ClickPoints.js"></script>-->
+<!--<script src="ColoredPoints.js"></script>-->
+<!--<script src="MultiPoints.js"></script>-->
+<!--<script src="HelloQuad.js"></script>-->
+<!--<script src="TranslatedTriangle.js"></script>-->
+<!--<script src="RotatedTriangle.js"></script>-->
+<!--<script src="RotatedTriangle_Matrix.js"></script>-->
+<!--<script src="RotatedTriangle_Matrix4.js"></script>-->
+<!--<script src="RotatingTriangle.js"></script>-->
+<!--<script src="MultiAttributeSize.js"></script>-->
+<!--<script src="HelloTriangle_FragCoord.js"></script>-->
+<!--<script src="TexturedQuad.js"></script>-->
+<!--<script src="LookAtTriangle.js"></script>-->
+<!--<script src="LookAtRotatedTriangle.js"></script>-->
+<!--<script src="LookAtTriangleWithKeys.js"></script>-->
+<!--<script src="OrthoView.js"></script>-->
+<!--<script src="LookAtTriangleWithKeys_ViewVolume.js"></script>-->
+<!--<script src="PerspectiveView.js"></script>-->
+<script src="PerspectiveView_mvp.js"></script>
+</html>
