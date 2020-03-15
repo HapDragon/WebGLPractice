@@ -27,8 +27,8 @@ function main() {
     }
     gl.clearColor(0,0,0,1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);//开启深度测试
+    gl.clear(gl.DEPTH_BUFFER_BIT);//清空深度缓冲区
 
     if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
         console.log('Failed to initialize shader.');
@@ -77,13 +77,22 @@ function initVertexBuffers(gl) {
         -0.5,-1.0,-4.0,0.4,1.0,0.4,
         0.5,-1.0,-4.0,1.0,0.4,0.4,
 
+        // 0, 1.0,-2.0,1.0,1.0,0.4,//黄色三角形在中间
+        // -0.5,-1.0,-2.0,1.0,1.0,0.4,
+        // 0.5,-1.0,-2.0,1.0,0.4,0.4,
+
         0, 1.0,-2.0,1.0,1.0,0.4,//黄色三角形在中间
         -0.5,-1.0,-2.0,1.0,1.0,0.4,
-        0.5,-1.0,-2.0,1.0,0.4,0.4,
+        0.5,-1.0,-2.0,1.0,1.0,0.4,
 
-        0, 1.0,0.0,0.4,0.4,1.0,//蓝色三角形在最前面
-        -0.5,-1.0,0.0,0.4,0.4,1.0,
-        0.5,-1.0,0.0,1.0,0.4,0.4
+        // 0, 1.0,0.0,0.4,0.4,1.0,//蓝色三角形在最前面
+        // -0.5,-1.0,0.0,0.4,0.4,1.0,
+        // 0.5,-1.0,0.0,1.0,0.4,0.4
+
+        //为了测试深度冲突，顶点需要跟产生冲突的另一个三角形略微不一样，这样系统不知道绘制哪个时由于两个三角形同一个像素位置的颜色不一样会看出效果，所以颜色设置不一样的纯色或渐变是对于看出效果必要的
+        0, 0.5,-2.0,0.4,0.4,1.0,//蓝色三角形在最前面
+        -0.5,-0.5,-2.0,0.4,0.4,1.0,
+        0.5,-0.5,-2.0,1.0,0.4,0.4
 
     ]);
     var fsize=verticesColors.BYTES_PER_ELEMENT;
@@ -123,6 +132,7 @@ function initVertexBuffers(gl) {
 }
 
 var g_eyeX=0.0,g_eyeY=0.0,g_eyeZ=5.0;
+g_eyeX=-0.75;//为了测试深度冲突现象，但是并没有出现
 function keydown(ev,gl,n,u_mvpMatrix,modelMatrix,viewMatrix,projMatrix) {
     if(ev.keyCode==39){
         g_eyeX+=0.01;
