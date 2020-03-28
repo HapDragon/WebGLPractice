@@ -3,14 +3,15 @@ var VSHADER_SOURCE=
     'attribute vec4 a_Color;\n'+
     'uniform mat4 u_mvpMatrix;\n'+
     'varying vec4 v_Color;\n'+
-    'attribute vec4 a_Normal;\n'+//法向量
-    'uniform vec3 u_LightColor;\n'+//光线颜色
-    'uniform vec3 u_LightDirection;\n'+//光线方向
-    'uniform vec3 u_AmbientLight;\n'+//环境光颜色
+    'attribute vec4 a_Normal;\n'+//法向量 平行光下漫反射
+    'uniform vec3 u_LightColor;\n'+//光线颜色 平行光下漫反射
+    'uniform vec3 u_LightDirection;\n'+//光线方向 平行光下漫反射
+    'uniform vec3 u_AmbientLight;\n'+//环境光颜色 环境光下反射
+    'uniform mat4 u_NormalMatrix;\n'+//用来变换法向量的矩阵 平行光下漫反射
     'void main() {\n' +
     ' gl_Position = u_mvpMatrix*a_Position;\n' +
     //对法向量进行归一化
-    ' vec3 normal = normalize(vec3(a_Normal));\n'+
+    ' vec3 normal = normalize(vec3(u_NormalMatrix*a_Normal));\n'+
     //对光线方向进行归一化
     ' vec3 normal_lightDir = normalize(u_LightDirection);\n'+
     //计算光线方向和法向量的点积
@@ -58,6 +59,11 @@ function main() {
         console.log('Failed to get uniform position of u_mvpMatrix.');
         return;
     }
+    var u_NormalMatrix=gl.getUniformLocation(gl.program,'u_NormalMatrix');
+    if(!u_NormalMatrix){
+        console.log('Failed to get uniform position of u_NormalMatrix.');
+        return;
+    }
     var u_LightColor=gl.getUniformLocation(gl.program,'u_LightColor');
     if(!u_LightColor){
         console.log('Failed to get uniform position of u_LightColor.');
@@ -79,21 +85,28 @@ function main() {
     gl.uniform3f(u_AmbientLight,0.2,0.2,0.2);
     //设置光线方向
     var lightDirection=new Vector3([0.5,3.0,4.0]);
-  //  lightDirection.normalize();
+    //  lightDirection.normalize();
     gl.uniform3fv(u_LightDirection,lightDirection.elements);
+
     gl.enable(gl.DEPTH_TEST);//开启深度测试
     gl.clear(gl.DEPTH_BUFFER_BIT);//清空深度缓冲区
     gl.enable(gl.POLYGON_OFFSET_FILL);
     //设置视点和可视空间
+    var modelMatrix=new Matrix4();
+    modelMatrix.setTranslate(0,1,0);
+    modelMatrix.rotate(90,0,0,1);
     var mvpMatrix=new Matrix4();
     mvpMatrix.setPerspective(30,1,1,100);
     //mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
     mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
+    mvpMatrix.multiply(modelMatrix);
     //将模型视图投影矩阵传给u_MvpMatrix
     gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
-    document.onkeydown=function (ev) {
-        keydown(ev,gl,mvpMatrix,u_mvpMatrix,n);
-    }
+    //模型变换的逆转置矩阵
+    var normalMatrix=new Matrix4();
+    normalMatrix.setInverseOf(modelMatrix);
+    normalMatrix.transpose();
+    gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
 }
@@ -255,37 +268,5 @@ function initArrayBuffer(gl,name,vals,num,type) {
 }
 
 
-function keydown(ev,gl,mvpMatrix,u_mvpMatrix,n) {
-    mvpMatrix=new Matrix4();
-    mvpMatrix.setPerspective(30,1,1,100);
-    if(ev.keyCode==39){
-        //左
-        currentangle+=rotateinterval;
-    }
-    else if(ev.keyCode==37){
-        //右
-        currentangle-=rotateinterval;
-    }
-    // else if(ev.keyCode==38){
-    //     //上
-    //     currenteyetheta+=eyethetainterval;
-    // }
-    // else if(ev.keyCode==40){
-    //     //上
-    //     currenteyetheta-=eyethetainterval;
-    // }
-    else{
-        return;
-    }
 
-
-    //mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.rotate(currentangle,0,1,0);
-    //将模型视图投影矩阵传给u_MvpMatrix
-    gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
-
-    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
-}
 
