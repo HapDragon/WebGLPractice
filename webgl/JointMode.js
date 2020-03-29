@@ -8,7 +8,7 @@ var VSHADER_SOURCE=
     'attribute vec4 a_Normal;\n'+//法向量
     ' varying vec3 v_Normal;\n'+//法向量传入片源着色器
     'uniform vec3 u_LightColor;\n'+//光线颜色
-   // 'uniform vec3 u_LightDirection;\n'+//光线方向在点光源中不再需要，因为在点光源中光线方向是根据点光源位置和顶点位置做差求得
+    // 'uniform vec3 u_LightDirection;\n'+//光线方向在点光源中不再需要，因为在点光源中光线方向是根据点光源位置和顶点位置做差求得
     ' uniform vec3 u_LightPosition;\n'+//光源位置
     ' varying vec3 v_Position;\n'+//顶点的世界坐标，用于逐片源计算光线方向
     'uniform vec3 u_AmbientLight;\n'+//环境光颜色
@@ -20,14 +20,14 @@ var VSHADER_SOURCE=
     //计算顶点的世界坐标
     ' v_Position=vec3(u_ModelMatrix*a_Position);\n'+
     //对光线方向进行归一化
-   // ' vec3 normal_lightDir = normalize(u_LightPosition-vec3(vertexPosition));\n'+
+    // ' vec3 normal_lightDir = normalize(u_LightPosition-vec3(vertexPosition));\n'+
     //计算光线方向和法向量的点积
-   // ' float nDotL = max(dot(normal_lightDir, normal),0.0);\n'+
+    // ' float nDotL = max(dot(normal_lightDir, normal),0.0);\n'+
     //计算漫反射光的颜色
     //' vec3 diffuse = u_LightColor * vec3(a_Color) * nDotL;\n'+
     //计算环境光产生的反射光颜色
-   // ' vec3 ambient = u_AmbientLight * vec3(a_Color);\n'+
-  //  ' v_Color = vec4(diffuse+ambient, a_Color.a);\n' +
+    // ' vec3 ambient = u_AmbientLight * vec3(a_Color);\n'+
+    //  ' v_Color = vec4(diffuse+ambient, a_Color.a);\n' +
     ' v_Color=a_Color;\n'+
     '}\n';
 var FSHADER_SOURCE=
@@ -42,19 +42,23 @@ var FSHADER_SOURCE=
     //对法向量进行归一化 因为其内插之后长度不一定是1
     ' vec3 normal = normalize(v_Normal);\n'+
     //对光线方向进行归一化
-     ' vec3 normal_lightDir = normalize(u_LightPosition-v_Position);\n'+
+    ' vec3 normal_lightDir = normalize(u_LightPosition-v_Position);\n'+
     //计算光线方向和法向量的点积
-     ' float nDotL = max(dot(normal_lightDir, normal),0.0);\n'+
+    ' float nDotL = max(dot(normal_lightDir, normal),0.0);\n'+
     //计算漫反射光的颜色
     ' vec3 diffuse = u_LightColor * vec3(v_Color) * nDotL;\n'+
     //计算环境光产生的反射光颜色
-     ' vec3 ambient = u_AmbientLight * vec3(v_Color);\n'+
+    ' vec3 ambient = u_AmbientLight * vec3(v_Color);\n'+
     //  ' v_Color = vec4(diffuse+ambient, a_Color.a);\n' +
     ' gl_FragColor = vec4(diffuse+ambient, v_Color.a);\n' +
     '}\n';
 
-let currentangle=90;
-let rotateinterval=1.0;//每次按键旋转角度
+
+let ANGLE_STEP=3.0;//每次按键旋转角度
+let g_arm1Angle=90.0;//arm1的当前角度 上臂
+let g_arm2Angle=0.0;//arm2的当前角度 下臂
+let g_modelMatrix=new Matrix4();
+let g_mvpMatrix=new Matrix4();
 
 function main() {
     var canvas=document.getElementById('webgl');
@@ -143,36 +147,41 @@ function main() {
 
 function initVertexBuffers(gl) {
     var vertices=new Float32Array([
-        //顶点坐标和颜色
-        1.0, 1.0, 1.0,//v0
-        -1.0, 1.0, 1.0,//v1
-        -1.0,-1.0, 1.0,//v2
-        1.0, -1.0, 1.0,//v3
+        //顶点坐标和颜色 前
+         1.5, 10.0, 1.5,//v0
+        -1.5, 10.0, 1.5,//v1
+        -1.5, 0.0, 1.5,//v2
+         1.5, 0.0, 1.5,//v3
 
-        1.0, 1.0, 1.0,//v0
-        1.0, -1.0, 1.0,//v3
-        1.0, -1.0, -1.0,//v4
-        1.0,1.0, -1.0,//v5
+        //右
+        1.5, 10.0, 1.5,//v0
+        1.5, 0.0, 1.5,//v3
+        1.5, 0.0, -1.5,//v4
+        1.5,10.0, -1.5,//v5
 
-        1.0, 1.0, 1.0,//v0
-        1.0,1.0, -1.0,//v5
-        -1.0, 1.0, -1.0,//v6
-        -1.0, 1.0, 1.0,//v1
+        //上
+        1.5, 10.0, 1.5,//v0
+        1.5,10.0, -1.5,//v5
+        -1.5, 10.0, -1.5,//v6
+        -1.5, 10.0, 1.5,//v1
 
-        -1.0, 1.0, 1.0,//v1
-        -1.0, 1.0, -1.0,//v6
-        -1.0,-1.0, -1.0,//v7
-        -1.0,-1.0, 1.0,//v2
+        //左
+        -1.5, 10.0, 1.5,//v1
+        -1.5, 10.0, -1.5,//v6
+        -1.5,0.0, -1.5,//v7
+        -1.5,0.0, 1.5,//v2
 
-        -1.0,-1.0, -1.0,//v7
-        1.0, -1.0, -1.0,//v4
-        1.0, -1.0, 1.0,//v3
-        -1.0,-1.0, 1.0,//v2
+        //下
+        -1.5,0.0, -1.5,//v7
+        1.5, 0.0, -1.5,//v4
+        1.5, 0.0, 1.5,//v3
+        -1.5,0.0, 1.5,//v2
 
-        1.0, -1.0, -1.0,//v4
-        -1.0,-1.0, -1.0,//v7
-        -1.0, 1.0, -1.0,//v6
-        1.0,1.0, -1.0,//v5
+        //后
+        1.5, 0.0, -1.5,//v4
+        -1.5,0.0, -1.5,//v7
+        -1.5, 10.0, -1.5,//v6
+        1.5,10.0, -1.5,//v5
     ]);
     var colors=new Float32Array([
         //品红色 前
@@ -200,7 +209,7 @@ function initVertexBuffers(gl) {
         0.0,0.0,1.0,
         0.0,0.0,1.0,
         0.0,0.0,1.0,
-        //白色 右
+        //白色 后
         1.0,1.0,1.0,
         1.0,1.0,1.0,
         1.0,1.0,1.0,
@@ -275,7 +284,7 @@ function initVertexBuffers(gl) {
 
     return vertexcolornormal_indics.length;
 }
-function initArrayBuffer(gl,name,vals,num,type) {
+function initArrayBuffer(keydowngl,name,vals,num,type) {
     var buffer=gl.createBuffer();
     if(!buffer){
         console.log('Failed to create the buffer object ');
@@ -298,20 +307,40 @@ function initArrayBuffer(gl,name,vals,num,type) {
 }
 
 
-function keydown(ev,gl,mvpMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
-    mvpMatrix=new Matrix4();
-    mvpMatrix.setPerspective(30,1,1,100);
-    if(ev.keyCode==39){
-        //右
-        currentangle+=rotateinterval;
+function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
+    switch (ev.keyCode) {
+        case 37://左 ->arm1（上臂）绕Y轴正向转动
+            if(g_arm1Angle<135.0) {
+                //不能让它360°转不然看上去很诡异
+                g_arm1Angle+=ANGLE_STEP;
+            }
+            break;
+        case 38://上 ->arm2（下臂）绕Z轴正向转动
+            if(g_arm2Angle<135.0) {
+                //不能让它360°转不然看上去很诡异
+                g_arm2Angle+=ANGLE_STEP;
+            }
+            break;
+        case 39://右 ->arm1（上臂）绕Y轴正向转动
+            if(g_arm1Angle>-135.0) {
+                //不能让它360°转不然看上去很诡异
+                g_arm1Angle-=ANGLE_STEP;
+            }
+            break;
+        case 40://下 ->arm2（下臂）绕Z轴负向转动
+            if(g_arm2Angle>-135.0) {
+                //不能让它360°转不然看上去很诡异
+                g_arm2Angle-=ANGLE_STEP;
+            }
+            break;
+        default:
+            return;
     }
-    else if(ev.keyCode==37){
-        //左
-        currentangle-=rotateinterval;
-    }
-    else{
-        return;
-    }
+
+
+
+
+
 
     var modelMatrix=new Matrix4();
     modelMatrix.setTranslate(0,1,0);
@@ -323,7 +352,7 @@ function keydown(ev,gl,mvpMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
     //mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
     mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
     mvpMatrix.multiply(modelMatrix);
-   // mvpMatrix.rotate(currentangle,0,1,0);
+    // mvpMatrix.rotate(currentangle,0,1,0);
     //将模型视图投影矩阵传给u_MvpMatrix
     gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
     gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix.elements);
@@ -331,3 +360,13 @@ function keydown(ev,gl,mvpMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
     gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
 }
 
+function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
+
+}
+
+function drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
+    //计算模型视图矩阵并传给u_MvpMatrix变量
+    g_mvpMatrix.set(viewProjMatrix);
+    g_mvpMatrix.multiply(g_modelMatrix);
+    gl.uniformMatrix4fv(u_MvpMatrix,false,g_mvpMatrix.elements);
+}
