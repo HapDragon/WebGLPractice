@@ -345,6 +345,16 @@ function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n
 				g_finger1Angle=(g_finger1Angle-ANGLE_STEP)%360;
 			}
 			break;
+		case 66://B
+			if(g_finger2Angle<60){
+				g_finger2Angle=(g_finger2Angle+ANGLE_STEP)%360;
+			}
+			break;
+		case 78://N
+			if(g_finger2Angle>-60){
+				g_finger2Angle=(g_finger2Angle-ANGLE_STEP)%360;
+			}
+			break
 		default:
 			return;
 	}
@@ -387,7 +397,7 @@ function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
 	g_modelMatrix=popMatrix();
 	//finger2
 	g_modelMatrix.translate(0,palmLength,-2);
-	g_modelMatrix.rotate(-g_finger1Angle,1.0,0.0,0.0);
+	g_modelMatrix.rotate(g_finger2Angle,1.0,0.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
 	drawBox(gl,n,1,2,1,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
 }
