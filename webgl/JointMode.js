@@ -338,7 +338,7 @@ function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
 	drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
 	//arm2
-    g_modelMatrix.translate(0.0,arm1Length,0.0);
+    g_modelMatrix.translate(0.0,arm1Length-1,0.0);
     g_modelMatrix.rotate(g_arm2Angle,0.0,0.0,1.0);
     g_modelMatrix.scale(1.1,1.1,1.1);
     drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
