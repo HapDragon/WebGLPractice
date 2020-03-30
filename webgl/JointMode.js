@@ -55,8 +55,8 @@ var FSHADER_SOURCE=
 
 
 let ANGLE_STEP=3.0;//每次按键旋转角度
-let g_arm1Angle=90.0;//arm1的当前角度 上臂
-let g_arm2Angle=0.0;//arm2的当前角度 下臂
+let g_arm1Angle=90.0;//arm1的当前角度 上臂 绕Y轴转动
+let g_arm2Angle=0.0;//arm2的当前角度 下臂 绕Z轴转动
 let g_modelMatrix=new Matrix4();
 let g_mvpMatrix=new Matrix4();
 
@@ -341,6 +341,7 @@ function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
     g_modelMatrix.translate(0.0,arm1Length-1,0.0);
     g_modelMatrix.rotate(g_arm2Angle,0.0,0.0,1.0);
     g_modelMatrix.scale(1.1,1.1,1.1);
+	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
     drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
 }
 
