@@ -122,27 +122,16 @@ function main() {
     gl.clear(gl.DEPTH_BUFFER_BIT);//清空深度缓冲区
     gl.enable(gl.POLYGON_OFFSET_FILL);
     //设置视点和可视空间
-    var mvpMatrix=new Matrix4();
-    var modelMatrix=new Matrix4();
-    modelMatrix.setTranslate(0,1,0);
-    modelMatrix.rotate(90,0,1,0);
-    mvpMatrix.setPerspective(30,1,1,100);
+    var viewProjMatrix=new Matrix4();
+	viewProjMatrix.setPerspective(50.0,canvas.width/canvas.height,1,100);
     //mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.multiply(modelMatrix);
-    //将模型视图投影矩阵传给u_MvpMatrix
-    gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
-    gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix.elements);
-    //模型变换的逆转置矩阵
-    var normalMatrix=new Matrix4();
-    normalMatrix.setInverseOf(modelMatrix);
-    normalMatrix.transpose();
-    gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
-    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+	viewProjMatrix.lookAt(20.0,10.0,30.0,0.0,0.0,0.0,0,1.0,0);
+
+
     document.onkeydown=function (ev) {
-        keydown(ev,gl,mvpMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n);
+        keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n);
     }
-    gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
+    draw(gl,n,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
 }
 
 function initVertexBuffers(gl) {
@@ -284,7 +273,7 @@ function initVertexBuffers(gl) {
 
     return vertexcolornormal_indics.length;
 }
-function initArrayBuffer(keydowngl,name,vals,num,type) {
+function initArrayBuffer(gl,name,vals,num,type) {
     var buffer=gl.createBuffer();
     if(!buffer){
         console.log('Failed to create the buffer object ');
@@ -336,32 +325,23 @@ function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n
         default:
             return;
     }
-
-
-
-
-
-
-    var modelMatrix=new Matrix4();
-    modelMatrix.setTranslate(0,1,0);
-    modelMatrix.rotate(currentangle,0,1,0);
-    var normalMatrix=new Matrix4();
-    normalMatrix.setInverseOf(modelMatrix);
-    normalMatrix.transpose();
-    gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
-    //mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
-    mvpMatrix.multiply(modelMatrix);
-    // mvpMatrix.rotate(currentangle,0,1,0);
-    //将模型视图投影矩阵传给u_MvpMatrix
-    gl.uniformMatrix4fv(u_mvpMatrix,false,mvpMatrix.elements);
-    gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix.elements);
-    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
+    draw(gl,n,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
 }
 
-function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
-
+function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
+	gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    //arm1
+    var arm1Length=10.0;
+    g_modelMatrix.setTranslate(0.0,-12.0,0.0);
+    g_modelMatrix.rotate(g_arm1Angle,0.0,1.0,0.0);
+	//赋值模型矩阵
+	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
+	drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	//arm2
+    g_modelMatrix.translate(0.0,arm1Length,0.0);
+    g_modelMatrix.rotate(g_arm2Angle,0.0,0.0,1.0);
+    g_modelMatrix.scale(1.1,1.1,1.1);
+    drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
 }
 
 function drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
@@ -369,4 +349,11 @@ function drawBox(gl,n,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
     g_mvpMatrix.set(viewProjMatrix);
     g_mvpMatrix.multiply(g_modelMatrix);
     gl.uniformMatrix4fv(u_MvpMatrix,false,g_mvpMatrix.elements);
+    //计算法线变换
+	var normalMatrix=new Matrix4();
+	normalMatrix.setInverseOf(g_modelMatrix);
+	normalMatrix.transpose();
+	gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
+	//gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+	gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
 }
