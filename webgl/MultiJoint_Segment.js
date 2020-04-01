@@ -481,53 +481,56 @@ function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n
 	draw(gl,n,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
 }
 
-function draw(gl,n,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
+function draw(gl,n,viewProjMatrix,a_Position,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
 	gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 	//基座
 	var baseHeight=2.0;
 	g_modelMatrix.setTranslate(0.0,-12.0,0.0);
 	//赋值模型矩阵
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,10.0,baseHeight,10.0,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_baseBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 	//arm1
 	var arm1Length=10.0;
 	g_modelMatrix.translate(0.0,baseHeight,0.0);
 	g_modelMatrix.rotate(g_arm1Angle,0.0,1.0,0.0);
 	//赋值模型矩阵
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,3,arm1Length,3,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 	//arm2
 	var arm2Length=10.0;
 	g_modelMatrix.translate(0.0,arm1Length,0.0);
 	g_modelMatrix.rotate(g_arm2Angle,0.0,0.0,1.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,3,arm2Length,3.0,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 	//palm
 	var palmLength=2.0;
 	g_modelMatrix.translate(0.0,arm2Length,0.0);
 	g_modelMatrix.rotate(g_palmAngle,0.0,1.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,5,palmLength,5,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_palmBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 	//finger1
 	pushMatrix(g_modelMatrix);
 	g_modelMatrix.translate(0,palmLength,2);
 	g_modelMatrix.rotate(g_finger1Angle,1.0,0.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,1,2,1,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 	g_modelMatrix=popMatrix();
 	//finger2
 	g_modelMatrix.translate(0,palmLength,-2);
 	g_modelMatrix.rotate(g_finger2Angle,1.0,0.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawBox(gl,n,1,2,1,viewProjMatrix,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
 }
 
-function drawBox(gl,n,width,height,depth,viewProjMatrix,u_MvpMatrix,u_NormalMatrix) {
-	//保存模型矩阵
-	pushMatrix(g_modelMatrix);
-	//缩放立方体
-	g_modelMatrix.scale(width,height,depth);
-	//计算模型视图矩阵并传给u_MvpMatrix变量
+
+
+function drawSegment(gl,n,buffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix) {
+	gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+	//将缓冲区对象分配给attribute变量
+	gl.vertexAttribPointer(a_Position,buffer.num,buffer.type,false,0,0);
+	//开启变量
+	gl.enableVertexAttribArray(a_Position);
+	//计算模型视图投影矩阵并传给u_MvpMatrix变量
 	g_mvpMatrix.set(viewProjMatrix);
 	g_mvpMatrix.multiply(g_modelMatrix);
 	gl.uniformMatrix4fv(u_MvpMatrix,false,g_mvpMatrix.elements);
@@ -536,10 +539,12 @@ function drawBox(gl,n,width,height,depth,viewProjMatrix,u_MvpMatrix,u_NormalMatr
 	normalMatrix.setInverseOf(g_modelMatrix);
 	normalMatrix.transpose();
 	gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
-	//gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+	//绘制
 	gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
-	//恢复全局modelMatrix为之前保存的矩阵
-	g_modelMatrix=popMatrix();
+}
+
+function initArrayBufferForLaterUse(gl,data,num,type) {
+
 }
 
 function pushMatrix(m) {
