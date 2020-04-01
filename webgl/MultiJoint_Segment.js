@@ -92,6 +92,12 @@ function main() {
 		return;
 	}
 
+	//获取a_Position存储位置
+	var a_Position=gl.getAttribLocation(gl.program,'a_Position');
+	if(a_Position<0){
+		console.log('Failed to get the storage location of a_Position');
+		return -1;
+	}
 	var u_mvpMatrix=gl.getUniformLocation(gl.program,'u_mvpMatrix');
 	if(!u_mvpMatrix){
 		console.log('Failed to get uniform position of u_mvpMatrix.');
@@ -139,9 +145,9 @@ function main() {
 
 
 	document.onkeydown=function (ev) {
-		keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n);
+		keydown(ev,gl,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n);
 	}
-	draw(gl,n,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
+	draw(gl,n,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
 }
 
 function initVertexBuffers(gl) {
@@ -375,10 +381,17 @@ function initVertexBuffers(gl) {
 		20,21,22,20,22,23
 	])
 
-	if(!initArrayBuffer(gl,'a_Position',vertices,3,gl.FLOAT))
-	{
-		return -1;
-	}
+	//将坐标值写入缓冲区对象 但不分配给attribute变量
+	g_baseBuffer=initArrayBufferForLaterUse(gl,vertices_base,3,gl.FLOAT);
+	g_armBuffer=initArrayBufferForLaterUse(gl,vertices_arm,3,gl.FLOAT);
+	g_palmBuffer=initArrayBufferForLaterUse(gl,vertices_base,3,gl.FLOAT);
+	g_fingerBuffer=initArrayBufferForLaterUse(gl,vertices_finger,3,gl.FLOAT);
+
+
+	// if(!initArrayBuffer(gl,'a_Position',vertices,3,gl.FLOAT))
+	// {
+	// 	return -1;
+	// }
 	if(!initArrayBuffer(gl,'a_Color',colors,3,gl.FLOAT)){
 		return -1;
 	}
@@ -421,7 +434,7 @@ function initArrayBuffer(gl,name,vals,num,type) {
 }
 
 
-function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
+function keydown(ev,gl,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
 	switch (ev.keyCode) {
 		case 37://左 ->arm1（上臂）绕Y轴正向转动
 			if(g_arm1Angle<135.0) {
@@ -478,7 +491,7 @@ function keydown(ev,gl,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n
 		default:
 			return;
 	}
-	draw(gl,n,viewProjMatrix,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
+	draw(gl,n,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
 }
 
 function draw(gl,n,viewProjMatrix,a_Position,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
@@ -544,7 +557,18 @@ function drawSegment(gl,n,buffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalM
 }
 
 function initArrayBufferForLaterUse(gl,data,num,type) {
-
+	var buffer=gl.createBuffer();
+	if(!buffer){
+		console.log('Failed to create the buffer object ');
+		return -1;
+	}
+	//将缓冲区对象绑定到目标
+	gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+	//向缓冲区对象写入数据
+	gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+	buffer.num=num;
+	buffer.type=type;
+	return buffer;
 }
 
 function pushMatrix(m) {
