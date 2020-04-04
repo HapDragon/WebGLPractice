@@ -53,7 +53,7 @@ var FSHADER_SOURCE=
 	' vec3 ambient = u_AmbientLight * vec3(v_Color);\n'+
 	//  ' v_Color = vec4(diffuse+ambient, a_Color.a);\n' +
 	' gl_FragColor = vec4(diffuse+ambient, v_Color.a);\n' +
-	' if(u_Clicked){\n'+
+	' if(u_Clicked==true){\n'+
 	' gl_FragColor=vec4(1.0,0.0,0.0,1.0);\n'+
 	'}\n'+
 	'}\n';
@@ -459,7 +459,9 @@ function initEventHandlers(gl,n,canvas,currentAngle,u_Clicked,viewProjMatrix,u_M
 		if(rect.left<=x&&rect.right>x&&rect.top<=y&&rect.bottom>y){
 			var x_in_canvas=x-rect.left,y_in_canvas=rect.bottom-y;
 			var picked=check(gl,n,x_in_canvas,y_in_canvas,currentAngle,u_Clicked,viewProjMatrix,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix,a_Position);
-			if(picked) alert('The model was selected!');
+			if(picked){
+				//alert('The model was selected!');
+			}
 			lastX=x;
 			lastY=y;
 			dragging=true;
@@ -494,6 +496,7 @@ function check(gl,n,x,y,currentAngle,u_Clicked,viewProjMatrix,u_MvpMatrix,u_Mode
 	gl.readPixels(x,y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
 	if(pixels[0]==255){
 		picked=true;
+		alert('The model was selected!');
 	}
 	gl.uniform1i(u_Clicked,0);
 	draw(gl,n,viewProjMatrix,a_Position,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix,currentAngle);
