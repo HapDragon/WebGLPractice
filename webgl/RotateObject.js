@@ -142,7 +142,18 @@ function main() {
 	viewProjMatrix.setPerspective(50.0,canvas.width/canvas.height,1,100);
 	//mvpMatrix.lookAt(3,3,7,0,0,0,0,1,0);
 	viewProjMatrix.lookAt(20.0,10.0,30.0,0.0,0.0,0.0,0,1.0,0);
-	draw(gl,n,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix);
+	document.onkeydown=function (ev) {
+		keydown(ev,gl,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n);
+	}
+	//注册时间响应函数
+	var currentAngle=[0.0,0.0];
+	initEventHandlers(canvas,currentAngle);
+	var tick=function(){
+		draw(gl,n,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,currentAngle);
+		requestAnimationFrame(tick)
+	}
+	tick();
+
 }
 
 function initVertexBuffers(gl) {
@@ -461,50 +472,51 @@ function initEventHandlers(canvas,currentAngle) {
 }
 
 
-function draw(gl,n,viewProjMatrix,a_Position,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix) {
+function draw(gl,n,viewProjMatrix,a_Position,u_MvpMatrix,u_ModelMatrix,u_NormalMatrix,currentAngle) {
 	gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
 	//基座
 	var baseHeight=2.0;
 	g_modelMatrix.setTranslate(0.0,-12.0,0.0);
 	//赋值模型矩阵
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_baseBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_baseBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 	//arm1
 	var arm1Length=10.0;
 	g_modelMatrix.translate(0.0,baseHeight,0.0);
 	g_modelMatrix.rotate(g_arm1Angle,0.0,1.0,0.0);
 	//赋值模型矩阵
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 	//arm2
 	var arm2Length=10.0;
 	g_modelMatrix.translate(0.0,arm1Length,0.0);
 	g_modelMatrix.rotate(g_arm2Angle,0.0,0.0,1.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_armBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 	//palm
 	var palmLength=2.0;
 	g_modelMatrix.translate(0.0,arm2Length,0.0);
 	g_modelMatrix.rotate(g_palmAngle,0.0,1.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_palmBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_palmBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 	//finger1
 	pushMatrix(g_modelMatrix);
 	g_modelMatrix.translate(0,palmLength,2);
 	g_modelMatrix.rotate(g_finger1Angle,1.0,0.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 	g_modelMatrix=popMatrix();
 	//finger2
 	g_modelMatrix.translate(0,palmLength,-2);
 	g_modelMatrix.rotate(g_finger2Angle,1.0,0.0,0.0);
 	gl.uniformMatrix4fv(u_ModelMatrix,false,g_modelMatrix.elements);
-	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix);
+	drawSegment(gl,n,g_fingerBuffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle);
 }
 
 
 
-function drawSegment(gl,n,buffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix) {
+function drawSegment(gl,n,buffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalMatrix,currentAngle) {
 	gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
 	//将缓冲区对象分配给attribute变量
 	gl.vertexAttribPointer(a_Position,buffer.num,buffer.type,false,0,0);
@@ -512,14 +524,15 @@ function drawSegment(gl,n,buffer,viewProjMatrix,a_Position,u_MvpMatrix,u_NormalM
 	gl.enableVertexAttribArray(a_Position);
 	//计算模型视图投影矩阵并传给u_MvpMatrix变量
 	g_mvpMatrix.set(viewProjMatrix);
+	g_mvpMatrix.rotate(currentAngle[0],1.0,0.0,0.0).rotate(currentAngle[1],0.0,1.0,0.0);
 	g_mvpMatrix.multiply(g_modelMatrix);
-	gl.uniformMatrix4fv(u_MvpMatrix,false,g_mvpMatrix.elements);
+	gl.uniformMatrix4fv(u_MvpMatrix,false, g_mvpMatrix.elements);
 	//计算法线变换
 	var normalMatrix=new Matrix4();
 	normalMatrix.setInverseOf(g_modelMatrix);
 	normalMatrix.transpose();
 	gl.uniformMatrix4fv(u_NormalMatrix,false,normalMatrix.elements);
-	//绘制
+	//
 	gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_BYTE,0);
 }
 
@@ -536,6 +549,66 @@ function initArrayBufferForLaterUse(gl,data,num,type) {
 	buffer.num=num;
 	buffer.type=type;
 	return buffer;
+}
+
+
+function keydown(ev,gl,viewProjMatrix,a_Position,u_mvpMatrix,u_ModelMatrix,u_NormalMatrix,n) {
+	switch (ev.keyCode) {
+		case 37://左 ->arm1（上臂）绕Y轴正向转动
+			if(g_arm1Angle<135.0) {
+				//不能让它360°转不然看上去很诡异
+				g_arm1Angle+=ANGLE_STEP;
+			}
+			break;
+		case 38://上 ->arm2（下臂）绕Z轴正向转动
+			if(g_arm2Angle<135.0) {
+				//不能让它360°转不然看上去很诡异
+				g_arm2Angle+=ANGLE_STEP;
+			}
+			break;
+		case 39://右 ->arm1（上臂）绕Y轴正向转动
+			if(g_arm1Angle>-135.0) {
+				//不能让它360°转不然看上去很诡异
+				g_arm1Angle-=ANGLE_STEP;
+			}
+			break;
+		case 40://下 ->arm2（下臂）绕Z轴负向转动
+			if(g_arm2Angle>-135.0) {
+				//不能让它360°转不然看上去很诡异
+				g_arm2Angle-=ANGLE_STEP;
+			}
+			break;
+		case 90://Z
+			g_palmAngle+=ANGLE_STEP;
+			g_palmAngle%=360;
+			break;
+		case 88://X
+			g_palmAngle-=ANGLE_STEP;
+			g_palmAngle%=360;
+			break;
+		case 86://V
+			if(g_finger1Angle<60){
+				g_finger1Angle=(g_finger1Angle+ANGLE_STEP)%360;
+			}
+			break;
+		case 67://C
+			if(g_finger1Angle>-60){
+				g_finger1Angle=(g_finger1Angle-ANGLE_STEP)%360;
+			}
+			break;
+		case 66://B
+			if(g_finger2Angle<60){
+				g_finger2Angle=(g_finger2Angle+ANGLE_STEP)%360;
+			}
+			break;
+		case 78://N
+			if(g_finger2Angle>-60){
+				g_finger2Angle=(g_finger2Angle-ANGLE_STEP)%360;
+			}
+			break
+		default:
+			return;
+	}
 }
 
 function pushMatrix(m) {
