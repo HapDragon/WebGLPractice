@@ -46,12 +46,14 @@ var rotateinterval=1;
 function main() {
     var canvas=document.getElementById('webgl');
     var gl=getWebGLContext(canvas);
+    var hud=document.getElementById('hud');
+    var ctx=hud.getContext('2d');
     if(!gl)
     {
         console.log('Failed to get the rendering context for webgl');
         return;
     }
-    gl.clearColor(0,0,0,1);
+    gl.clearColor(0,0,0,0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
         console.log('Failed to initialize shader.');
@@ -119,11 +121,31 @@ function main() {
     }
     var tick=function(){
         draw(gl,n,u_mvpMatrix);
+        draw2D(ctx);
         requestAnimationFrame(tick);
     }
     tick();
    // draw(gl,n,u_mvpMatrix);
 
+}
+
+function draw2D(ctx) {
+    ctx.clearRect(0,0,400,400);
+    ctx.beginPath();
+    ctx.moveTo(120,10);
+    ctx.lineTo(200,150);
+    ctx.lineTo(40,150);
+    ctx.closePath();
+    ctx.strokeStyle='rgba(0,255,255,1)';
+    ctx.stroke();
+    ctx.font='18px "Times New Roman"';
+    ctx.fillStyle='rgba(0,0,255,1)';
+    ctx.fillText('HUD:Head Up Display',40,80);
+    ctx.fillText('Triangle is drawn by Hud API',40,200);
+    ctx.fillText('Cube is drawn by WebGL API.',40,220);
+    ctx.fillText('Current XAngle:'+Math.floor(currentRotateAngle_X),40,240);
+    ctx.fillText('Current YAngle:'+Math.floor(currentRotateAngle_Y),40,260);
+    ctx.fillText('Current ZAngle:'+Math.floor(currentRotateAngle_Z),40,280);
 }
 
 function draw(gl,n,u_mvpMatrix) {
