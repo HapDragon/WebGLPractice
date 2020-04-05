@@ -5,14 +5,20 @@
     <title>HELLO canvas</title>
 </head>
 <body onload="main()" >
-<canvas id="webgl" width="500" height="500" style="position:absolute;top:0px;z-index: 1;"></canvas>
-<canvas id="hud" width="500" height="500" style="position:absolute;top:0px;z-index: 2;"></canvas>
+<!--<canvas id="webgl" width="500" height="500" style="position:absolute;top:0px;z-index: 1;"></canvas>-->
+<canvas id="webgl" width="400" height="400" ></canvas>
+<!--<canvas id="hud" width="500" height="500" style="position:absolute;top:0px;z-index: 2;"></canvas>-->
 <!--<button onclick="speedup()">Up</button>-->
 <!--<button onclick="speeddown()">down</button>-->
 <!--<p id="nearFar">The near and far values are displayed here.</p>&lt;!&ndash;使用OrthoView.js时用到&ndash;&gt;-->
-<ul style="position: absolute;top:200px;z-index: 0;">
+<!--<ul style="position: absolute;top:200px;z-index: 0;">-->
+<!--    <li>若片元着色器传入了参数，则片元着色器开头必须要声明float精确度，例如：precision mediump float;该语句放到顶点着色器没用。</li>-->
+<!--    <li>实验证明 vec4类型的顶点坐标变换参数即可以用uniform定义，也可以用attribute定义，见TranslatedTriangle.js和RotatedTriangle.js，但是建议用uniform，因为这些值与顶点无关，其值不受顶点坐标影响。</li>-->
+<!--</ul>-->
+<ul>
     <li>若片元着色器传入了参数，则片元着色器开头必须要声明float精确度，例如：precision mediump float;该语句放到顶点着色器没用。</li>
     <li>实验证明 vec4类型的顶点坐标变换参数即可以用uniform定义，也可以用attribute定义，见TranslatedTriangle.js和RotatedTriangle.js，但是建议用uniform，因为这些值与顶点无关，其值不受顶点坐标影响。</li>
+    <li>疑问：为什么gl_Position的w分量是视图坐标的z分量乘以-1？</li>
 </ul>
 </body>
 <script src="./lib/webgl-utils.js"></script>
@@ -53,5 +59,6 @@
 <!--<script src="MultiJoint_Segment.js"></script>-->
 <!--<script src="RotateObject.js"></script>-->
 <!--<script src="PickObject.js"></script>-->
-<script src="PickFace.js"></script>
+<!--<script src="PickFace.js"></script>-->
+<script src="Fog.js"></script>
 </html>
